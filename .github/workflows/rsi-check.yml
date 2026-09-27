@@ -1,0 +1,26 @@
+name: ETH RSI Check
+
+on:
+  schedule:
+    # Run every hour at minute 5 (after candle closes)
+    - cron: '5 * * * *'
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  check-rsi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      
+      - name: Run RSI analysis (dry-run only; no wallet secret)
+        env:
+          DRY_RUN: 'true'
+        run: python run_dex.py --once

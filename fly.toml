@@ -1,0 +1,30 @@
+# Example only. Replace the app and volume names before a deliberate deployment.
+app = 'replace-with-your-app-name'
+primary_region = 'iad'
+
+[build]
+
+[env]
+  DEMO_MODE = 'true'
+  API_HOST = '0.0.0.0'
+  HL_NETWORK = 'testnet'
+  HL_ENABLE_LIVE_TRADING = 'false'
+  GUARDIAN_ENABLE_LIVE_ACTIONS = 'false'
+  PAUSE_NEW_ENTRIES = 'true'
+  BOT_DATA_DIR = '/data'
+  PYTHONUNBUFFERED = '1'
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  size = 'shared-cpu-1x'
+  memory = '512mb'
+
+[[mounts]]
+  source = 'replace_with_volume_name'
+  destination = '/data'

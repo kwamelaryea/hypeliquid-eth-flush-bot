@@ -1,0 +1,16 @@
+# Direct dependencies — pinned to exact versions (2026-03-25)
+# To update a package intentionally: change version here + regenerate requirements.lock
+# DO NOT use >= ranges — supply chain attacks exploit unpinned deps
+ccxt==4.5.35
+numpy==2.0.2
+web3==7.14.0
+requests==2.32.5
+hyperliquid-python-sdk==0.24.0
+fastapi==0.128.8
+uvicorn==0.39.0
+jinja2==3.1.6
+websockets==15.0.1
+keyring==25.7.0
+pandas==2.3.3
+matplotlib==3.9.4
+anthropic==0.89.0

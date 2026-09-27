@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HL FLUSH BOT / OVERVIEW</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32.png">
+    <link rel="stylesheet" href="/static/dashboard.css">
+</head>
+<body>
+
+    <!-- ── Top Bar ── -->
+    <div class="topbar">
+        <div class="brand-block">
+            <img src="/static/logo.svg" alt="HL Flush Bot" class="brand-logo">
+            <div class="brand-text">
+                <span class="brand-eyebrow">Hyperliquid Perps</span>
+                <div class="brand-title">HL FLUSH / <span>OVERVIEW</span></div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <div class="status-pill" id="address-pill" title="Synthetic demo mode">
+                <div class="dot"></div>
+                <span id="address-text">DEMO</span>
+            </div>
+            <div class="last-update" id="last-update-ts">LAST UPDATE: --:--:-- UTC</div>
+        </div>
+    </div>
+
+    <div class="container desktop-grid">
+
+        <!-- ── Hero: Price ── -->
+        <div class="hero">
+            <div class="hero-top">
+                <div class="price-block">
+                    <div class="section-label">ETH Index Price</div>
+                    <div class="price" id="price">$----.--</div>
+                    <div class="trend-pill" id="trend-pill">
+                        <div id="trend-dot"></div>
+                        <span id="trend-text">Initializing...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-metrics">
+                <div class="metric">
+                    <div class="section-label">Synthetic Demo PnL</div>
+                    <div class="metric-val" id="pnl" style="color: var(--text-dim);">+0.00%</div>
+                </div>
+                <div class="metric">
+                    <div class="section-label">Position</div>
+                    <div class="metric-val" id="position" style="color: var(--text-dim);">NONE</div>
+                </div>
+                <div class="metric">
+                    <div class="section-label">EMA-200</div>
+                    <div class="metric-val" id="ema-val" style="font-size: 16px; color: var(--text-dim);">$----</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Signal Row ── -->
+        <div class="signal-row">
+            <div class="signal-left">
+                <div class="section-label">Strategy Signal</div>
+                <div class="signal-desc" id="signal-desc">Monitoring liquidation clusters...</div>
+            </div>
+            <div class="signal-badge sig-wait" id="signal-badge">WAIT</div>
+        </div>
+
+        <!-- ── Stats Grid ── -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="section-label">Synthetic Demo Equity</div>
+                <div class="stat-val" id="balance">$0.00</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="section-label">RSI (14)</div>
+                <div class="stat-val" id="rsi">--.-</div>
+                <div class="rsi-track">
+                    <div id="rsi-bar"></div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="section-label">Funding Rate</div>
+                <div class="stat-val" id="funding" style="font-size: 16px;">---</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="section-label">Cascade Risk</div>
+                <div class="stat-val" style="font-size: 16px;">
+                    <span class="cascade-badge cascade-normal" id="cascade-badge-mini">NORMAL</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Tabs ── -->
+        <div class="tabs-section">
+            <nav class="tab-nav" role="tablist">
+                <button class="tab-btn active" id="tab-perps"   data-tab="perps">⚡ Perps</button>
+                <button class="tab-btn"         id="tab-spot"    data-tab="spot">💰 Spot</button>
+                <button class="tab-btn"         id="tab-cascade" data-tab="cascade">🛡 Cascade</button>
+                <button class="tab-btn"         id="tab-pnl"     data-tab="pnl">📈 PnL</button>
+            </nav>
+
+            <!-- Perps -->
+            <div class="tab-panel active tab-content" id="panel-perps">
+                <div class="section-label">Synthetic Positions</div>
+                <div id="perps-list">
+                    <div class="empty-state">No active positions</div>
+                </div>
+            </div>
+
+            <!-- Spot -->
+            <div class="tab-panel tab-content" id="panel-spot">
+                <div class="section-label">Synthetic Balances</div>
+                <div id="spot-list">
+                    <div class="empty-state">Fetching balances...</div>
+                </div>
+            </div>
+
+            <!-- Cascade -->
+            <div class="tab-panel tab-content" id="panel-cascade">
+                <div class="cascade-header">
+                    <div>
+                        <div class="section-label">Cascade Risk</div>
+                        <div class="cascade-badge cascade-normal" id="cascade-badge">NORMAL</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="section-label">Score</div>
+                        <div style="font-family: var(--sans); font-size: 22px; font-weight: 700;" id="cascade-score">0/100</div>
+                    </div>
+                </div>
+                <div class="cascade-score-track">
+                    <div id="cascade-score-bar"></div>
+                </div>
+                <div class="log-msg" id="cascade-impact">🟢 Trading: Full size active</div>
+                <div id="cascade-reasons" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 4px;"></div>
+            </div>
+
+            <!-- PnL Chart -->
+            <div class="tab-panel tab-content" id="panel-pnl">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+                    <div class="section-label" style="margin-bottom:0;">Synthetic PnL</div>
+                    <div style="text-align: right;">
+                        <div class="section-label" style="margin-bottom:2px;">Net Total</div>
+                        <div style="font-family: var(--sans); font-size: 18px; font-weight: 700;" id="pnl-total">$0.00</div>
+                    </div>
+                </div>
+                <div style="position: relative; height: 180px;">
+                    <div class="empty-state">Synthetic demo history is intentionally empty.</div>
+                </div>
+                <div class="log-msg" style="text-align: center; margin-top: 8px;" id="pnl-chart-msg">Loading trade history...</div>
+            </div>
+        </div>
+
+        <!-- ── Execution Log ── -->
+        <div class="log-section">
+            <div class="log-header">
+                <span class="section-label" style="margin-bottom:0;">Synthetic Demo Log</span>
+                <span style="font-size: 10px; color: var(--text-muted); letter-spacing: 0.08em;">v1.2.0</span>
+            </div>
+            <div class="log-list" id="logs">
+                <div class="log-entry log-info">
+                    <span class="log-ts">--:--:--</span>
+                    <span class="log-msg">Booting core trading services...</span>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /container -->
+
+    <script src="/static/dashboard.js" defer></script>
+</body>
+</html>

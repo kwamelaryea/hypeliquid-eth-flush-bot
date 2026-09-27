@@ -1,0 +1,106 @@
+# HL Flush Bot — Strategy Goals & Review Criteria
+# Created:  2026-05-22
+# Purpose:  Define success and failure explicitly so weekly reviews have a scoring baseline.
+#           Inspired by self-improving agent framework (one well-defined goal, scientific iteration).
+#
+# RULE: Change ONE variable per weekly cycle. Log your hypothesis before deploying.
+#       "Changing [param] from [old] to [new] because [reason]. Expect [outcome]."
+
+version: "1.0"
+strategy_name: "ETH Leverage Flush — 3-Regime (Flush-LONG / Trend-Follow)"
+deposit_usd: 50           # Target initial re-deposit May 2026
+start_date: "2026-05-22"  # Account funded and bot redeployed
+
+# =============================================================================
+# SUCCESS — working toward these
+# =============================================================================
+success:
+  target_monthly_return_pct: 8.0      # 8%/mo at 1x leverage is ambitious but the Feb peak showed edge
+  min_sharpe_ratio: 1.0               # Sharpe ≥ 1.0 = risk-adjusted edge exists
+  min_win_rate_pct: 40.0              # Even at 40% WR, 2:1 R:R is profitable
+  max_fees_as_pct_of_gross_pnl: 30.0  # Fees must not eat >30% of gross (current all-time: fees > PnL)
+
+# =============================================================================
+# FAILURE — automatic review triggers, do not continue without review
+# =============================================================================
+failure:
+  max_drawdown_from_peak_pct: 20.0    # 20% drawdown from any peak → pause + mandatory review
+  equity_floor_usd: 20.0              # Hard floor in config — matches MIN_EQUITY_FLOOR
+  consecutive_sl_hits: 4              # 4 consecutive SL hits → pause longs, review regime detection
+  weekly_loss_pct: 15.0               # Lose 15% of account in one week → full review before continuing
+  sharpe_below: 0.0                   # Negative Sharpe over any 4-week window = no edge in these conditions
+
+# =============================================================================
+# POSITION LIMITS — reflect current config_dex.py values
+# =============================================================================
+position_limits:
+  max_concurrent_positions: 1         # Hard rule — the double-entry bug proved why
+  leverage: 1                         # 1x — no leverage amplification
+  trade_size_pct_equity: 70           # TRADE_PERCENT
+  trend_follow_size_pct: 60           # Smaller for trend-follow (lower conviction than cluster flush)
+  min_equity_floor_usd: 20.0          # Must match MIN_EQUITY_FLOOR in config_dex.py
+
+# =============================================================================
+# RISK PARAMETERS — snapshot of current values (change ONE at a time)
+# =============================================================================
+risk:
+  hard_sl_pct: 4.0                    # STOP_LOSS_PCT — always active
+  fixed_tp_pct: 12.0                  # TAKE_PROFIT_PCT — bypassed when trailing active
+  trailing_trigger_pct: 3.0           # TRAILING_TRIGGER_PCT
+  trailing_floor_pct: 1.5             # TRAILING_FLOOR_PCT
+  reentry_cooldown_seconds: 600       # REENTRY_COOLDOWN_SECONDS
+
+# =============================================================================
+# REGIME THRESHOLDS — snapshot of current values
+# =============================================================================
+regime:
+  # Macro (FRED-based)
+  vix_caution: 20.0
+  vix_risk_off: 30.0
+  hy_spread_caution: 4.0
+  hy_spread_risk_off: 5.5
+
+  # Price (EMA-based)
+  ema_short_period: 50
+  ema_long_period: 200
+  uptrend_ema_buffer_pct: 0.5         # Blocks entries if price < EMA50 * 1.005 (EMA lag fix)
+
+# =============================================================================
+# ACTIVE STRATEGIES
+# =============================================================================
+strategies:
+  flush_long: true                    # Always on — core strategy
+  flush_short: false                  # Disabled 2026-05-06: 10 trades, PF 0.47
+  trend_follow: true                  # EMA-50 pullback entries in uptrend
+  trailing_stop: true                 # Replaced fixed TP
+  macro_filter: true                  # FRED VIX/yield/HY regime gate
+  vpin_filter: true                   # Informed flow detection
+  staircase_circuit_breaker: true     # Blocks averaging into falling market
+
+# =============================================================================
+# REVIEW CADENCE
+# =============================================================================
+review:
+  frequency: weekly
+  agent: weekly_review_agent.py
+  iteration_rule: one_variable_per_cycle   # Scientific method — never change 2 params at once
+  hypothesis_log: LESSONS.md              # All changes logged here with hypothesis + outcome
+
+# =============================================================================
+# CHANGE LOG — one entry per weekly review
+# Format: date | param changed | old → new | hypothesis | outcome (fill in next week)
+# =============================================================================
+changes:
+  - date: 2026-05-28
+    param: RSI_EXIT_OVERBOUGHT
+    old_value: 72
+    new_value: 78
+    hypothesis: "Kelly analysis (39 trades): trend-follow avg win +1.88% < avg loss -2.25%. RSI-exit at 72 is cutting winners short before the full flush move completes. Raising to 78 gives trend-follow longs more room to run, improving R:R toward the Kelly-required 1.17:1 for break-even at 46% WR."
+    outcome: null  # fill in after one week of live data with deposit
+
+  - date: 2026-05-28
+    param: USE_MARKOV_FILTER
+    old_value: "not present"
+    new_value: "True (MARKOV_WINDOW=20, MARKOV_THRESHOLD=0.02, MARKOV_MIN_STAY_PROB=0.55)"
+    hypothesis: "3-state Markov chain on 1h closes. stay_prob < 0.55 blocks entries in unstable regimes (regime flip imminent). size_scalar linearly reduces LONG size when stationary P(BEAR) rises from 0.20 to 0.60. Expect: fewer entries in volatile/transitioning markets, less drawdown without sacrificing uptrend entries."
+    outcome: null  # fill in after one week
