@@ -35,7 +35,7 @@ eth-typing==5.2.1
 eth-utils==5.3.1
 eth_abi==5.2.0
 exceptiongroup==1.3.1
-fastapi==0.128.8
+fastapi==0.141.1
 fonttools==4.60.2
 frozenlist==1.8.0
 h11==0.16.0
@@ -74,11 +74,11 @@ python-dateutil==2.9.0.post0
 pytz==2025.2
 pyunormalize==17.0.0
 regex==2026.1.15
-requests==2.32.5
+requests==2.33.0
 rlp==4.1.0
 six==1.17.0
 sniffio==1.3.1
-starlette==0.49.3
+starlette==1.1.0
 toolz==1.1.0
 types-requests==2.32.4.20260107
 typing-inspection==0.4.2
